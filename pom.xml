@@ -1080,8 +1080,8 @@
                         <configuration>
                            <rules>
                               <requireJavaVersion>
-                                 <version>[8)</version>
-                                 <message>JDK 11 is required when building the release</message>
+                                 <version>1.8.0</version>
+                                 <message>JDK 8 is required when building the release</message>
                               </requireJavaVersion>
                            </rules>
                         </configuration>
