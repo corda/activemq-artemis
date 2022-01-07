@@ -1080,7 +1080,7 @@
                         <configuration>
                            <rules>
                               <requireJavaVersion>
-                                 <version>[11, 12)</version>
+                                 <version>[8)</version>
                                  <message>JDK 11 is required when building the release</message>
                               </requireJavaVersion>
                            </rules>
@@ -1654,7 +1654,7 @@
                <configuration>
                  <rules>
                    <requireJavaVersion>
-                     <version>[11,)</version>
+                     <version>[11,8)</version>
                      <message>You must use JDK 11+ when building</message>
                    </requireJavaVersion>
                  </rules>
