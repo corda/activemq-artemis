@@ -73,15 +73,13 @@
    <url>https://activemq.apache.org/components/artemis/</url>
 
    <properties>
-      <maven.compiler.source>8</maven.compiler.source>
-      <maven.compiler.target>8</maven.compiler.target>
-
+      <modular.jdk.surefire.arg />
+      <javac.version>9+181-r4173-1</javac.version>
        <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
 
       <retryTests>false</retryTests>
       <logging.config>logging.properties</logging.config>
-      <modular.jdk.surefire.arg>--add-modules java.sql,jdk.unsupported </modular.jdk.surefire.arg>
 
       <activemq-artemis-native-version>1.0.2</activemq-artemis-native-version>
       <karaf.version>4.3.3</karaf.version>
@@ -100,27 +98,26 @@
       <fuse.mqtt.client.version>1.16</fuse.mqtt.client.version>
       <guava.version>30.1-jre</guava.version>
       <jboss.logging.version>3.4.2.Final</jboss.logging.version>
-      <jetty.version>9.4.44.v20210927</jetty.version>
+      <jetty.version>9.4.43.v20210629</jetty.version>
       <jgroups.version>3.6.13.Final</jgroups.version>
       <errorprone.version>2.9.0</errorprone.version>
       <maven.enforcer.plugin.version>3.0.0-M3</maven.enforcer.plugin.version>
       <maven.bundle.plugin.version>5.1.2</maven.bundle.plugin.version>
-      <maven.shade.plugin.version>3.2.4</maven.shade.plugin.version>
       <maven.checkstyle.plugin.version>3.1.1</maven.checkstyle.plugin.version>
       <sevntu.checks.version>1.39.0</sevntu.checks.version>
       <checkstyle.version>8.43</checkstyle.version>
       <mockito.version>3.12.4</mockito.version>
       <jctools.version>2.1.2</jctools.version>
-      <netty.version>4.1.72.Final</netty.version>
+      <netty.version>4.1.68.Final</netty.version>
       <curator.version>5.2.0</curator.version>
       <zookeeper.version>3.6.3</zookeeper.version>
 
       <!-- this is basically for tests -->
-      <netty-tcnative-version>2.0.46.Final</netty-tcnative-version>
-      <proton.version>0.33.10</proton.version>
+      <netty-tcnative-version>2.0.42.Final</netty-tcnative-version>
+      <proton.version>0.33.9</proton.version>
       <resteasy.version>3.15.0.Final</resteasy.version>
       <slf4j.version>1.7.21</slf4j.version>
-      <qpid.jms.version>1.3.0</qpid.jms.version>
+      <qpid.jms.version>0.59.0</qpid.jms.version>
       <johnzon.version>0.9.5</johnzon.version>
       <hawtbuff.version>1.11</hawtbuff.version>
       <jb.logmanager.version>2.1.10.Final</jb.logmanager.version>
@@ -207,7 +204,7 @@
 
       <activemq-surefire-argline>-Dorg.apache.commons.logging.Log=org.apache.activemq.artemis.logs.JBossLoggingApacheLoggerBridge -Dorg.apache.activemq.artemis.utils.RetryRule.retry=${retryTests} -Dbrokerconfig.maxDiskUsage=100 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_QUIET_PERIOD=0 -Dorg.apache.activemq.artemis.core.remoting.impl.netty.TransportConstants.DEFAULT_SHUTDOWN_TIMEOUT=0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager
          -Dlogging.configuration="file:${activemq.basedir}/tests/config/${logging.config}"
-         -Djava.library.path="${activemq.basedir}/target/bin/lib/linux-x86_64:${activemq.basedir}/target/bin/lib/linux-i686" -Djgroups.bind_addr=localhost
+         -Djava.library.path="${activemq.basedir}/target/bin/lib/linux-x86_64:${activemq.basedir}/target/bin/lib/linux-i686" -Djgroups.bind_addr=localhost -Dorg.apache.activemq.artemis.api.core.UDPBroadcastEndpointFactory.localBindAddress=localhost
          -Djava.net.preferIPv4Stack=true -Dbasedir=${basedir}
       </activemq-surefire-argline>
       <activemq.basedir>${project.basedir}</activemq.basedir>
@@ -245,6 +242,7 @@
         <url>https://software.r3.com:443/artifactory/corda-dependencies-dev</url>
     </snapshotRepository>
 </distributionManagement>
+
 
    <issueManagement>
       <system>JIRA</system>
@@ -485,6 +483,12 @@
             <!-- License: EPL 2.0 -->
         </dependency>
         <dependency>
+           <groupId>jakarta.json</groupId>
+           <artifactId>jakarta.json-api</artifactId>
+           <version>${jakarta.json-api.version}</version>
+            <!-- License: EPL 2.0 -->
+        </dependency>
+        <dependency>
            <groupId>jakarta.ejb</groupId>
            <artifactId>jakarta.ejb-api</artifactId>
            <version>${jakarta.ejb-api.version}</version>
@@ -564,6 +568,12 @@
          </dependency>
          <dependency>
             <groupId>io.netty</groupId>
+            <artifactId>netty-all</artifactId>
+            <version>${netty.version}</version>
+            <!-- License: Apache 2.0 -->
+         </dependency>
+         <dependency>
+            <groupId>io.netty</groupId>
             <artifactId>netty-buffer</artifactId>
             <version>${netty.version}</version>
             <!-- License: Apache 2.0 -->
@@ -594,18 +604,6 @@
          </dependency>
          <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-codec-http</artifactId>
-            <version>${netty.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-codec-mqtt</artifactId>
-            <version>${netty.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>io.netty</groupId>
             <artifactId>netty-codec-socks</artifactId>
             <version>${netty.version}</version>
             <!-- License: Apache 2.0 -->
@@ -618,18 +616,6 @@
          </dependency>
          <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-resolver</artifactId>
-            <version>${netty.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>io.netty</groupId>
-            <artifactId>netty-transport-classes-epoll</artifactId>
-            <version>${netty.version}</version>
-            <!-- License: Apache 2.0 -->
-         </dependency>
-         <dependency>
-            <groupId>io.netty</groupId>
             <artifactId>netty-transport-native-epoll</artifactId>
             <version>${netty.version}</version>
             <classifier>${netty-transport-native-epoll-classifier}</classifier>
@@ -637,15 +623,15 @@
          </dependency>
          <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-transport-classes-kqueue</artifactId>
+            <artifactId>netty-transport-native-kqueue</artifactId>
             <version>${netty.version}</version>
+            <classifier>${netty-transport-native-kqueue-classifier}</classifier>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
             <groupId>io.netty</groupId>
-            <artifactId>netty-transport-native-kqueue</artifactId>
+            <artifactId>netty-codec-http</artifactId>
             <version>${netty.version}</version>
-            <classifier>${netty-transport-native-kqueue-classifier}</classifier>
             <!-- License: Apache 2.0 -->
          </dependency>
          <dependency>
@@ -687,6 +673,13 @@
            <version>${slf4j.version}</version>
            <!-- License: MIT -->
          </dependency>
+         <!-- json -->
+         <dependency>
+            <groupId>org.apache.johnzon</groupId>
+            <artifactId>johnzon-core</artifactId>
+            <version>${johnzon.version}</version>
+         </dependency>
+
          <!--needed for the rest support-->
          <dependency>
             <groupId>org.jboss.resteasy</groupId>
@@ -914,39 +907,12 @@
                   <groupId>log4j</groupId>
                   <artifactId>log4j</artifactId>
                </exclusion>
-               <exclusion>
-                  <groupId>io.netty</groupId>
-                  <artifactId>netty-transport-native-epoll</artifactId>
-               </exclusion>
             </exclusions>
          </dependency>
          <dependency>
             <groupId>org.apache.zookeeper</groupId>
             <artifactId>zookeeper-jute</artifactId>
             <version>${zookeeper.version}</version>
-         </dependency>
-
-
-
-         <!-- johnzon and jakarta.json are shaded on artemis-commons.
-              However during internal builds and test phase original bits may be used,
-              and this library would still be needed for test phase.
-              I am declaring scope as test by default to avoid any accidental use.
-              The only place where we are allowed to use this library is within artemis-commons.
-              anything other than that need to be carefully thought.
-          -->
-         <dependency>
-            <groupId>org.apache.johnzon</groupId>
-            <artifactId>johnzon-core</artifactId>
-            <version>${johnzon.version}</version>
-            <scope>test</scope>
-         </dependency>
-         <dependency>
-            <groupId>jakarta.json</groupId>
-            <artifactId>jakarta.json-api</artifactId>
-            <version>${jakarta.json-api.version}</version>
-            <scope>test</scope>
-            <!-- License: EPL 2.0 -->
          </dependency>
       </dependencies>
 
@@ -964,7 +930,82 @@
                <javac-compiler-id>javac</javac-compiler-id>
            </properties>
         </profile>
-
+      <!-- Google Error Prone has issues with IBM JDK 8 -->
+      <!-- See ARTEMIS-861 -->
+      <profile>
+         <id>ibm-jdk8</id>
+         <activation>
+            <jdk>1.8</jdk>
+            <property>
+               <name>java.vendor</name>
+               <value>IBM Corporation</value>
+            </property>
+         </activation>
+         <build>
+            <plugins>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-compiler-plugin</artifactId>
+                  <configuration combine.self="override" />
+               </plugin>
+               <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <configuration>
+                     <systemPropertyVariables>
+                        <com.ibm.jsse2.overrideDefaultTLS>true</com.ibm.jsse2.overrideDefaultTLS>
+                     </systemPropertyVariables>
+                  </configuration>
+               </plugin>
+            </plugins>
+         </build>
+      </profile>
+      <profile>
+         <id>jdk8</id>
+         <activation>
+            <jdk>1.8</jdk>
+         </activation>
+          <properties>
+              <maven.compiler.source>1.8</maven.compiler.source>
+              <maven.compiler.target>1.8</maven.compiler.target>
+          </properties>
+      </profile>
+      <profile>
+          <id>jdk8-errorprone</id>
+          <activation>
+              <jdk>1.8</jdk>
+              <property>
+                  <name>errorprone</name>
+              </property>
+          </activation>
+          <build>
+              <plugins>
+                  <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-compiler-plugin</artifactId>
+                      <configuration>
+                          <fork>true</fork>
+                          <compilerArgs combine.children="append">
+                              <arg>-XDcompilePolicy=simple</arg>
+                              <arg>-J-Xbootclasspath/p:${settings.localRepository}/com/google/errorprone/javac/${javac.version}/javac-${javac.version}.jar</arg>
+                              <arg>-Xplugin:ErrorProne -Xep:MissingOverride:ERROR -Xep:NonAtomicVolatileUpdate:ERROR -Xep:SynchronizeOnNonFinalField:ERROR -Xep:StaticQualifiedUsingExpression:ERROR -Xep:WaitNotInLoop:ERROR -XepExcludedPaths:.*/generated-sources/.*</arg>
+                          </compilerArgs>
+                      </configuration>
+                  </plugin>
+              </plugins>
+          </build>
+      </profile>
+      <profile>
+          <id>jdk11on</id>
+          <activation>
+              <jdk>[11,)</jdk>
+          </activation>
+          <properties>
+              <maven.compiler.source>1.8</maven.compiler.source>
+              <maven.compiler.target>11</maven.compiler.target>
+              <modular.jdk.surefire.arg>--add-modules java.sql,jdk.unsupported </modular.jdk.surefire.arg>
+          </properties>
+      </profile>
       <profile>
           <id>jdk11to15-errorprone</id>
           <activation>
@@ -1083,7 +1124,7 @@
                         <configuration>
                            <rules>
                               <requireJavaVersion>
-                                 <version>1.8.0</version>
+                                 <version>[1.8, 9)</version>
                                  <message>JDK 8 is required when building the release</message>
                               </requireJavaVersion>
                            </rules>
@@ -1459,7 +1500,7 @@
             <plugin>
                <groupId>org.apache.maven.plugins</groupId>
                <artifactId>maven-shade-plugin</artifactId>
-               <version>${maven.shade.plugin.version}</version>
+               <version>3.2.0</version>
             </plugin>
             <plugin>
                <groupId>org.eclipse.jetty</groupId>
@@ -1638,8 +1679,6 @@
                      <exclude>examples/protocols/amqp/dotnet/**/bin/**/*</exclude>
                      <exclude>examples/protocols/amqp/dotnet/**/readme.md</exclude>
                      <exclude>examples/protocols/amqp/**/readme.md</exclude>
-
-                     <exclude>settings.xml</exclude>
                   </excludes>
                </configuration>
             </plugin>
@@ -1659,8 +1698,8 @@
                <configuration>
                  <rules>
                    <requireJavaVersion>
-                     <version>1.8.0</version>
-                     <message>You must use JDK 11+ when building</message>
+                     <version>[1.8, 9),[11,)</version>
+                     <message>You must use either JDK 8 or JDK 11+ when building</message>
                    </requireJavaVersion>
                  </rules>
                </configuration>
@@ -1825,6 +1864,7 @@
                </reportSet>
             </reportSets>
          </plugin>
+
       </plugins>
    </reporting>
 
