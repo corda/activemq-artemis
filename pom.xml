@@ -20,7 +20,7 @@
    <groupId>org.apache.activemq</groupId>
    <artifactId>artemis-pom</artifactId>
    <packaging>pom</packaging>
-   <version>2.21.0-SNAPSHOT</version>
+   <version>DUMMY-0.0.1-SNAPSHOT</version>
 
    <parent>
       <groupId>org.apache</groupId>
@@ -73,8 +73,8 @@
    <url>https://activemq.apache.org/components/artemis/</url>
 
    <properties>
-      <maven.compiler.source>11</maven.compiler.source>
-      <maven.compiler.target>11</maven.compiler.target>
+      <maven.compiler.source>8</maven.compiler.source>
+      <maven.compiler.target>8</maven.compiler.target>
 
        <!-- base url for site deployment.  See distribution management for full url.  Override this in settings.xml for staging -->
       <staging.siteURL>scp://people.apache.org/x1/www/activemq.apache.org</staging.siteURL>
@@ -233,15 +233,18 @@
       <tag>2.19.0</tag>
    </scm>
 
-   <distributionManagement>
-      <site>
-         <!-- this needs to match a server in your settings.xml with upload settings -->
-         <id>activemq-website</id>
-         <!-- set the staging.siteURL in your ~/.m2/settings.xml in a release or other profile -->
-         <url>${staging.siteURL}/maven/${project.version}</url>
-         <!--<url>${site-repo-url}</url>-->
-      </site>
-   </distributionManagement>
+<distributionManagement>
+    <repository>
+        <id>credentals</id>
+        <name>software.r3.com-releases</name>
+        <url>https://software.r3.com:443/artifactory/corda-dependencies</url>
+    </repository>
+    <snapshotRepository>
+        <id>credentals</id>
+        <name>software.r3.com-snapshots</name>
+        <url>https://software.r3.com:443/artifactory/corda-dependencies-dev</url>
+    </snapshotRepository>
+</distributionManagement>
 
    <issueManagement>
       <system>JIRA</system>
@@ -1635,6 +1638,8 @@
                      <exclude>examples/protocols/amqp/dotnet/**/bin/**/*</exclude>
                      <exclude>examples/protocols/amqp/dotnet/**/readme.md</exclude>
                      <exclude>examples/protocols/amqp/**/readme.md</exclude>
+
+                     <exclude>settings.xml</exclude>
                   </excludes>
                </configuration>
             </plugin>
@@ -1654,7 +1659,7 @@
                <configuration>
                  <rules>
                    <requireJavaVersion>
-                     <version>[11,8)</version>
+                     <version>1.8.0</version>
                      <message>You must use JDK 11+ when building</message>
                    </requireJavaVersion>
                  </rules>

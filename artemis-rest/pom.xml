@@ -20,7 +20,7 @@
    <parent>
       <groupId>org.apache.activemq</groupId>
       <artifactId>artemis-pom</artifactId>
-      <version>2.21.0-SNAPSHOT</version>
+      <version>DUMMY-0.0.1-SNAPSHOT</version>
    </parent>
 
    <groupId>org.apache.activemq.rest</groupId>
@@ -31,6 +31,19 @@
    <properties>
       <activemq.basedir>${project.basedir}/..</activemq.basedir>
    </properties>
+
+   <distributionManagement>
+    <repository>
+        <id>credentals</id>
+        <name>software.r3.com-releases</name>
+        <url>https://software.r3.com:443/artifactory/corda-dependencies</url>
+    </repository>
+    <snapshotRepository>
+        <id>credentals</id>
+        <name>software.r3.com-snapshots</name>
+        <url>https://software.r3.com:443/artifactory/corda-dependencies-dev</url>
+    </snapshotRepository>
+</distributionManagement>
 
    <dependencies>
       <!--

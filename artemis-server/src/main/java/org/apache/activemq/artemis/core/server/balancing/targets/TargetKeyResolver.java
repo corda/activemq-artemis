@@ -138,7 +138,8 @@ public class TargetKeyResolver {
    }
 
    public void setKeyFilter(String regExp) {
-      if (regExp == null || regExp.isBlank()) {
+     // if (regExp == null || regExp.chars().allMatch(Character::isWhitespace)) {
+   if (regExp == null || regExp.isBlank()) {
          this.keyFilter = null;
       } else {
          this.keyFilter = Pattern.compile(regExp);
