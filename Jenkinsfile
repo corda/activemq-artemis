@@ -54,14 +54,14 @@ pipeline {
             }
         }
 
-        // stage('Deploy SNAPSHOT to artifactory') {
-        //     when {
-        //         expression { return isMainBranch() }
-        //     }
-        //     steps {
-        //         sh "mvn deploy -B -s settings.xml -DskipTests -Dartifactory.publish.buildInfo=true"
-        //     }
-        // }
+        stage('Deploy SNAPSHOT to artifactory') {
+            // when {
+            //     expression { return isMainBranch() }
+            // }
+            steps {
+                sh "mvn deploy -B -s .github/maven-settings.xml -DskipTests -Prelease -Dartifactory.publish.buildInfo=true"
+            }
+        }
 
         // stage('Deploy Release to artifactory') {
         //     when {
