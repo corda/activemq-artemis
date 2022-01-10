@@ -24,7 +24,7 @@ under the License.
    <parent>
       <groupId>org.apache.activemq.examples.mqtt</groupId>
       <artifactId>mqtt-examples</artifactId>
-      <version>2.19.0</version>
+      <version>DUMMY-0.0.2</version>
    </parent>
 
    <artifactId>publish-subscribe</artifactId>
