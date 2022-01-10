@@ -84,7 +84,8 @@ jobs:
       - name: Javadoc Check (JDK8 / -Pjdk8)
         if: matrix.java == '8'
         run: |
-          mvn -s .github/maven-settings.xml javadoc:javadoc -Pjdk8
+          mvn -s .github/maven-settings.xml -DskipTests -Derrorprone -Prelease -Pextra-tests -Pjmh install
+          mvn -s .github/maven-settings.xml javadoc:javadoc -Prelease
 
       - name: Javadoc Check (JDK 11+)
         if: matrix.java != '8'
