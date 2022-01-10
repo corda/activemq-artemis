@@ -81,10 +81,10 @@ jobs:
           cd examples
           mvn -s ../.github/maven-settings.xml verify -Pexamples,noRun
 
-      - name: Javadoc Check (JDK8 / -Prelease)
+      - name: Javadoc Check (JDK8 / -Pjdk8)
         if: matrix.java == '8'
         run: |
-          mvn -s .github/maven-settings.xml javadoc:javadoc -Prelease
+          mvn -s .github/maven-settings.xml javadoc:javadoc -Pjdk8
 
       - name: Javadoc Check (JDK 11+)
         if: matrix.java != '8'
