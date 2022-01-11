@@ -81,7 +81,7 @@ jobs:
           cd examples
           mvn -s ../.github/maven-settings.xml verify -Pexamples,noRun
 
-      - name: Javadoc Check (JDK8 / -Pjdk8)
+      - name: Javadoc Check (JDK8 / -Prelease)
         if: matrix.java == '8'
         run: |
           mvn -s .github/maven-settings.xml -DskipTests -Prelease install
