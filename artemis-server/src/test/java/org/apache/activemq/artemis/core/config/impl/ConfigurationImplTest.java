@@ -17,6 +17,8 @@
 package org.apache.activemq.artemis.core.config.impl;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -643,6 +645,23 @@ public class ConfigurationImplTest extends ActiveMQTestBase {
       Assert.assertEquals(1234, configuration.getFileDeployerScanPeriod());
       Assert.assertEquals(4321, configuration.getGlobalMaxSize());
    }
+
+    @Test
+    public void testFederationDownstreamAuthorizationMutatorsAndCopy() throws Exception {
+        ConfigurationImpl configuration = new ConfigurationImpl();
+        Assert.assertTrue(configuration.getFederationDownstreamAuthorization().isEmpty());
+
+        configuration.addFederationDownstreamAuthorization("a");
+        configuration.addFederationDownstreamAuthorization("b");
+        Assert.assertEquals(Arrays.asList("a", "b"), configuration.getFederationDownstreamAuthorization());
+
+        configuration.setFederationDownstreamAuthorization(Arrays.asList("c", "d", "e"));
+        Assert.assertEquals(Arrays.asList("c", "d", "e"), configuration.getFederationDownstreamAuthorization());
+
+        Configuration copied = configuration.copy();
+        Assert.assertEquals(configuration.getFederationDownstreamAuthorization(),
+                            copied.getFederationDownstreamAuthorization());
+    }
 
    @Override
    @Before
