@@ -48,180 +48,172 @@ import static org.apache.activemq.artemis.core.protocol.core.impl.wireformat.Fed
 
 public class FederationDownstreamDirectTest extends ActiveMQTestBase {
 
-    private ActiveMQServer server;
+   private ActiveMQServer server;
 
-    private static final String AUTHORIZED_USER = "authorizedUser";
-    private static final String AUTHORIZED_PASS = "authorizedPass";
-    private static final String AUTHORIZED_ROLE = "authorizedRole";
+   private static final String AUTHORIZED_USER = "authorizedUser";
+   private static final String AUTHORIZED_PASS = "authorizedPass";
+   private static final String AUTHORIZED_ROLE = "authorizedRole";
 
-    private static final String UNAUTHORIZED_USER = "unauthorizedUser";
-    private static final String UNAUTHORIZED_PASS = "unauthorizedPass";
-    private static final String UNAUTHORIZED_ROLE = "unauthorizedRole";
+   private static final String UNAUTHORIZED_USER = "unauthorizedUser";
+   private static final String UNAUTHORIZED_PASS = "unauthorizedPass";
+   private static final String UNAUTHORIZED_ROLE = "unauthorizedRole";
 
-    @Before
-    public void setUp() throws Exception {
-        super.setUp();
-    }
+   @Before
+   public void setUp() throws Exception {
+      super.setUp();
+   }
 
-    @After
-    public void tearDown() throws Exception {
-        try {
-            if (server != null) {
-                server.stop();
+   @After
+   public void tearDown() throws Exception {
+      try {
+         if (server != null) {
+            server.stop();
+         }
+      } finally {
+         server = null;
+         super.tearDown();
+      }
+   }
+
+   private void startServer(boolean configureDownstreamAuth) throws Exception {
+      Configuration config = createDefaultNettyConfig().setSecurityEnabled(true);
+      if (configureDownstreamAuth) {
+         config.addFederationDownstreamAuthorization(AUTHORIZED_ROLE);
+      }
+
+      server = createServer(false, config);
+      server.start();
+
+      ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
+      securityManager.getConfiguration().addUser(AUTHORIZED_USER, AUTHORIZED_PASS);
+      securityManager.getConfiguration().addRole(AUTHORIZED_USER, AUTHORIZED_ROLE);
+
+      securityManager.getConfiguration().addUser(UNAUTHORIZED_USER, UNAUTHORIZED_PASS);
+      securityManager.getConfiguration().addRole(UNAUTHORIZED_USER, UNAUTHORIZED_ROLE);
+   }
+
+   @Test
+   public void testNoAuthConfigured() throws Exception {
+      startServer(false);
+
+      sendFederationDownstreamConnectMessage(AUTHORIZED_USER, AUTHORIZED_PASS, false);
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224158"));
+      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224159"));
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224160"));
+   }
+
+   @Test
+   public void testUnauthenticatedDeployment() throws Exception {
+      startServer(true);
+
+      sendFederationDownstreamConnectMessage(null, null, false);
+      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224158"));
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224159"));
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224160"));
+   }
+
+   @Test
+   public void testUnauthorizedDeployment() throws Exception {
+      startServer(true);
+
+      sendFederationDownstreamConnectMessage(UNAUTHORIZED_USER, UNAUTHORIZED_PASS, false);
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224158"));
+      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224159"));
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224160"));
+   }
+
+   @Test
+   public void testSuccessfulDeployment() throws Exception {
+      startServer(true);
+
+      sendFederationDownstreamConnectMessage(AUTHORIZED_USER, AUTHORIZED_PASS, true);
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224158"));
+      Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224159"));
+      Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224160"));
+
+      // AMQ224161 is logged when the connection closes and the federation is undeployed
+      Wait.assertTrue(() -> AssertionLoggerHandler.findText("AMQ224161"));
+   }
+
+   private void sendFederationDownstreamConnectMessage(String user, String password, boolean succeed) throws Exception {
+      ServerLocator locator = null;
+      ClientSessionFactory factory = null;
+      ClientSession session = null;
+
+      try {
+         locator = ActiveMQClient.createServerLocator("tcp://localhost:61616");
+         factory = locator.createSessionFactory();
+
+         if (user != null) {
+            session = factory.createSession(user, password, true, true, true, true, -1);
+         }
+
+         // wait until server sees at least one connection
+         Assert.assertTrue(Wait.waitFor(() -> server.getActiveMQServerControl().getConnectionCount() == 1, 2000, 10));
+
+         CoreRemotingConnection coreConn = (CoreRemotingConnection) factory.getConnection();
+         Channel federationChannel = coreConn.getChannel(ChannelImpl.CHANNEL_ID.FEDERATION.id, -1);
+         federationChannel.send(getFederationDownstreamConnectMessage(getName()));
+
+         if (succeed) {
+            Assert.assertTrue(
+                     Wait.waitFor(() -> server.getFederationManager().get(getName() + UPSTREAM_SUFFIX) != null, 2000, 10)
+            );
+         } else {
+            Assert.assertFalse(
+                     Wait.waitFor(() -> server.getFederationManager().get(getName() + UPSTREAM_SUFFIX) != null, 1000, 10)
+            );
+            Assert.assertEquals(0, server.getActiveMQServerControl().getConnectionCount());
+         }
+      } finally {
+         try {
+            if (session != null) {
+               session.close();
             }
-        } finally {
-            server = null;
-            super.tearDown();
-        }
-    }
-
-    private void startServer(boolean configureDownstreamAuth) throws Exception {
-        Configuration config = createDefaultNettyConfig().setSecurityEnabled(true);
-        if (configureDownstreamAuth) {
-            config.addFederationDownstreamAuthorization(AUTHORIZED_ROLE);
-        }
-
-        server = createServer(false, config);
-        server.start();
-
-        ActiveMQJAASSecurityManager securityManager = (ActiveMQJAASSecurityManager) server.getSecurityManager();
-        securityManager.getConfiguration().addUser(AUTHORIZED_USER, AUTHORIZED_PASS);
-        securityManager.getConfiguration().addRole(AUTHORIZED_USER, AUTHORIZED_ROLE);
-
-        securityManager.getConfiguration().addUser(UNAUTHORIZED_USER, UNAUTHORIZED_PASS);
-        securityManager.getConfiguration().addRole(UNAUTHORIZED_USER, UNAUTHORIZED_ROLE);
-    }
-
-    @Test
-    public void testNoAuthConfigured() throws Exception {
-        startServer(false);
-
-        try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
-            sendFederationDownstreamConnectMessage(AUTHORIZED_USER, AUTHORIZED_PASS, false);
-            Assert.assertFalse(loggerHandler.findText("AMQ224158"));
-            Assert.assertTrue(loggerHandler.findText("AMQ224159"));
-            Assert.assertFalse(loggerHandler.findText("AMQ224160"));
-        }
-    }
-
-    @Test
-    public void testUnauthenticatedDeployment() throws Exception {
-        startServer(true);
-
-        try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
-            sendFederationDownstreamConnectMessage(null, null, false);
-            Assert.assertTrue(loggerHandler.findText("AMQ224158"));
-            Assert.assertFalse(loggerHandler.findText("AMQ224159"));
-            Assert.assertFalse(loggerHandler.findText("AMQ224160"));
-        }
-    }
-
-    @Test
-    public void testUnauthorizedDeployment() throws Exception {
-        startServer(true);
-
-        try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
-            sendFederationDownstreamConnectMessage(UNAUTHORIZED_USER, UNAUTHORIZED_PASS, false);
-            Assert.assertFalse(loggerHandler.findText("AMQ224158"));
-            Assert.assertTrue(loggerHandler.findText("AMQ224159"));
-            Assert.assertFalse(loggerHandler.findText("AMQ224160"));
-        }
-    }
-
-    @Test
-    public void testSuccessfulDeployment() throws Exception {
-        startServer(true);
-
-        try (AssertionLoggerHandler loggerHandler = new AssertionLoggerHandler()) {
-            sendFederationDownstreamConnectMessage(AUTHORIZED_USER, AUTHORIZED_PASS, true);
-            Assert.assertFalse(loggerHandler.findText("AMQ224158"));
-            Assert.assertFalse(loggerHandler.findText("AMQ224159"));
-            Assert.assertTrue(loggerHandler.findText("AMQ224160"));
-
-            // AMQ224161 is logged when the connection closes and the federation is undeployed
-            Wait.assertTrue(() -> loggerHandler.findText("AMQ224161"));
-        }
-    }
-
-    private void sendFederationDownstreamConnectMessage(String user, String password, boolean succeed) throws Exception {
-        ServerLocator locator = null;
-        ClientSessionFactory factory = null;
-        ClientSession session = null;
-
-        try {
-            locator = ActiveMQClient.createServerLocator("tcp://localhost:61616");
-            factory = locator.createSessionFactory();
-
-            if (user != null) {
-                session = factory.createSession(user, password, true, true, true, true, -1);
+         } catch (Throwable ignore) {
+         }
+         try {
+            if (factory != null) {
+               factory.close();
             }
-
-            // wait until server sees at least one connection
-            Assert.assertTrue(Wait.waitFor(() -> server.getActiveMQServerControl().getConnectionCount() == 1, 2000, 10));
-
-            CoreRemotingConnection coreConn = (CoreRemotingConnection) factory.getConnection();
-            Channel federationChannel = coreConn.getChannel(ChannelImpl.CHANNEL_ID.FEDERATION.id, -1);
-            federationChannel.send(getFederationDownstreamConnectMessage(getName()));
-
-            if (succeed) {
-                Assert.assertTrue(
-                        Wait.waitFor(() -> server.getFederationManager().get(getName() + UPSTREAM_SUFFIX) != null, 2000, 10)
-                );
-            } else {
-                Assert.assertFalse(
-                        Wait.waitFor(() -> server.getFederationManager().get(getName() + UPSTREAM_SUFFIX) != null, 1000, 10)
-                );
-                Assert.assertEquals(0, server.getActiveMQServerControl().getConnectionCount());
+         } catch (Throwable ignore) {
+         }
+         try {
+            if (locator != null) {
+               locator.close();
             }
-        } finally {
-            try {
-                if (session != null) {
-                    session.close();
-                }
-            } catch (Throwable ignore) {
-            }
-            try {
-                if (factory != null) {
-                    factory.close();
-                }
-            } catch (Throwable ignore) {
-            }
-            try {
-                if (locator != null) {
-                    locator.close();
-                }
-            } catch (Throwable ignore) {
-            }
-        }
-    }
+         } catch (Throwable ignore) {
+         }
+      }
+   }
 
-    private FederationDownstreamConnectMessage getFederationDownstreamConnectMessage(String name) {
-        final String policySetName = "fake-policy-set";
-        final String policyConfigName = "fake-policy-config";
+   private FederationDownstreamConnectMessage getFederationDownstreamConnectMessage(String name) {
+      final String policySetName = "fake-policy-set";
+      final String policyConfigName = "fake-policy-config";
 
-        FederationDownstreamConnectMessage msg = new FederationDownstreamConnectMessage();
-        msg.setName(name);
+      FederationDownstreamConnectMessage msg = new FederationDownstreamConnectMessage();
+      msg.setName(name);
 
-        Map<String, FederationPolicy> policyMap = new HashMap<>();
-        FederationQueuePolicyConfiguration queuePolicy = new FederationQueuePolicyConfiguration()
-                .setName(policyConfigName)
-                .addInclude(new FederationQueuePolicyConfiguration.Matcher().setQueueMatch("#").setAddressMatch("#"));
-        policyMap.put(policyConfigName, queuePolicy);
+      Map<String, FederationPolicy> policyMap = new HashMap<>();
+      FederationQueuePolicyConfiguration queuePolicy = new FederationQueuePolicyConfiguration()
+             .setName(policyConfigName)
+             .addInclude(new FederationQueuePolicyConfiguration.Matcher().setQueueMatch("#").setAddressMatch("#"));
+      policyMap.put(policyConfigName, queuePolicy);
 
-        FederationPolicySet policySet = new FederationPolicySet().setName(policySetName).addPolicyRef(policyConfigName);
-        policyMap.put(policySetName, policySet);
+      FederationPolicySet policySet = new FederationPolicySet().setName(policySetName).addPolicyRef(policyConfigName);
+      policyMap.put(policySetName, policySet);
 
-        msg.setFederationPolicyMap(policyMap);
+      msg.setFederationPolicyMap(policyMap);
 
-        FederationDownstreamConfiguration downstreamConfig = new FederationDownstreamConfiguration()
-                .setName("fake")
-                .addPolicyRef(policySetName);
+      FederationDownstreamConfiguration downstreamConfig = new FederationDownstreamConfiguration()
+             .setName("fake")
+             .addPolicyRef(policySetName);
 
-        downstreamConfig.setUpstreamConfiguration(
+      downstreamConfig.setUpstreamConfiguration(
                 new TransportConfiguration(NettyConnectorFactory.class.getName(), new HashMap<>(), "fake")
-        );
+      );
 
-        msg.setStreamConfiguration(downstreamConfig);
-        return msg;
-    }
+      msg.setStreamConfiguration(downstreamConfig);
+      return msg;
+   }
 }
