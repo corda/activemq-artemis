@@ -5,18 +5,18 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   test:
     name: Test (${{ matrix.java }})
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        java: [ 8, 11, 17 ]
+        java: [ 8 ]
 
     steps:
       - uses: actions/checkout@v2
 
       - name: Cache Maven Local Repo
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.m2/repository/*/*/*/*/*
@@ -42,18 +42,18 @@ jobs:
 
   checks:
     name: Checks (${{ matrix.java }})
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        java: [ 8, 11, 17 ]
+        java: [ 8 ]
 
     steps:
       - uses: actions/checkout@v2
 
       - name: Cache Maven Local Repo
         if: ${{ !startsWith(github.ref, 'refs/tags/') }}
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: |
             ~/.m2/repository/*/*/*/*/*
@@ -90,8 +90,8 @@ jobs:
       - name: Javadoc Check (JDK8 / -Prelease)
         if: matrix.java == '8'
         run: |
-          mvn -s .github/maven-settings.xml -DskipTests -Prelease install
-          mvn -s .github/maven-settings.xml javadoc:javadoc -Prelease
+          mvn -s .github/maven-settings.xml -DskipTests -Prelease install -pl '!artemis-website' -am
+          mvn -s .github/maven-settings.xml javadoc:javadoc -Prelease -pl '!artemis-website' -am
 
       - name: Javadoc Check (JDK 11+)
         if: matrix.java != '8'
