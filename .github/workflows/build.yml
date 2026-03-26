@@ -15,7 +15,8 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Cache Maven Local Repo
-        if: ${
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        uses: actions/cache@v2
         with:
           path: |
             ~/.m2/repository/*/*/*/*/*
