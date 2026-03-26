@@ -64,6 +64,7 @@ public class FederationDownstreamDirectTest extends ActiveMQTestBase {
       super.setUp();
    }
 
+   @Override
    @After
    public void tearDown() throws Exception {
       try {
