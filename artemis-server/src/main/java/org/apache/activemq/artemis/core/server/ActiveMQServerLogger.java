@@ -1780,10 +1780,6 @@ public interface ActiveMQServerLogger extends BasicLogger {
    @Message(id = 224000, value = "Failure in initialisation", format = Message.Format.MESSAGE_FORMAT)
    void initializationError(@Cause Throwable e);
 
-   @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222305, value = "Error during Core federation of message: {}.", format = Message.Format.MESSAGE_FORMAT)
-   void federationDispatchError(String message, @Cause Throwable e);
-
    @LogMessage(level = Logger.Level.ERROR)
    @Message(id = 224001, value = "Error deploying URI {0}", format = Message.Format.MESSAGE_FORMAT)
    void errorDeployingURI(@Cause Throwable e, URI uri);
