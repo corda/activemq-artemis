@@ -58,6 +58,7 @@ public class FederationDownstreamDirectTest extends ActiveMQTestBase {
    private static final String UNAUTHORIZED_PASS = "unauthorizedPass";
    private static final String UNAUTHORIZED_ROLE = "unauthorizedRole";
 
+   @Override
    @Before
    public void setUp() throws Exception {
       super.setUp();
