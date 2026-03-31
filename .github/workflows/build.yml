@@ -90,8 +90,8 @@ jobs:
       - name: Javadoc Check (JDK8 / -Prelease)
         if: matrix.java == '8'
         run: |
-          mvn -s .github/maven-settings.xml -DskipTests -Prelease install
-          mvn -s .github/maven-settings.xml javadoc:javadoc -Prelease
+          mvn -s .github/maven-settings.xml -DskipTests -Prelease install -pl '!artemis-website' -am
+          mvn -s .github/maven-settings.xml javadoc:javadoc -Prelease -pl '!artemis-website' -am
 
       - name: Javadoc Check (JDK 11+)
         if: matrix.java != '8'
