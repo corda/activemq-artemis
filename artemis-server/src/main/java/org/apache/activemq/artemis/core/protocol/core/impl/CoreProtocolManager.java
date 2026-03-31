@@ -540,7 +540,7 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
 
             try {
                server.getFederationManager().deploy(config);
-               String user = rc.getSubject() != null ? SecurityManagerUtil.getUserFromSubject(rc.getSubject(), UserPrincipal.class) : "anonymous";
+               String user = rc.getAuditSubject() != null ? SecurityManagerUtil.getUserFromSubject(rc.getAuditSubject(), UserPrincipal.class) : "anonymous";
                ActiveMQServerLogger.LOGGER.federationDownstreamDeployedFromRemoteUser(config.getName(), user, rc.getRemoteAddress());
             } catch (Exception e) {
                logger.error("Error deploying federation: " + e.getMessage(), e);
