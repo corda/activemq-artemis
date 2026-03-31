@@ -1752,7 +1752,8 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void duplicateAddressSettingMatch(String match);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222302, value = "Failed to deal with property {0} when converting message from core to OpenWire: {1}", format = Message.Format.MESSAGE_FORMAT)
+   @Message(id = 222302, value = "Failed to deal with property {0}" +
+           " when converting message from core to OpenWire: {1}", format = Message.Format.MESSAGE_FORMAT)
    void failedToDealWithObjectProperty(SimpleString property, String exceptionMessage);
 
    @LogMessage(level = Logger.Level.WARN)
@@ -1764,7 +1765,7 @@ public interface ActiveMQServerLogger extends BasicLogger {
    void unableToLoadMessageFromJournal(@Cause Throwable t);
 
    @LogMessage(level = Logger.Level.WARN)
-   @Message(id = 222305, value = "Error federating message {0}.",
+   @Message(id = 222305, value = "Error during Core federation of message {0}.",
       format = Message.Format.MESSAGE_FORMAT)
    void federationDispatchError(@Cause Throwable e, String message);
 
