@@ -170,7 +170,6 @@ public class FederationDownstreamDirectTest extends ActiveMQTestBase {
          Channel federationChannel = coreConn.getChannel(ChannelImpl.CHANNEL_ID.FEDERATION.id, -1);
          federationChannel.send(getFederationDownstreamConnectMessage(getName()));
          if (succeed) {
-            // Wait.assertNotNull(() -> server.getFederationManager().get(getName() + UPSTREAM_SUFFIX), 1000, 20);
             assertTrue(Wait.waitFor(() -> server.getFederationManager().get(getName() + UPSTREAM_SUFFIX) != null, 1000, 20));
          } else {
             assertFalse(Wait.waitFor(() -> server.getFederationManager().get(getName() + UPSTREAM_SUFFIX) != null, 1000, 20));

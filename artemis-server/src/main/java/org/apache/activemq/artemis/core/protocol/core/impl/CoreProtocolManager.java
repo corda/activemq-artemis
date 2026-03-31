@@ -439,13 +439,13 @@ public class CoreProtocolManager implements ProtocolManager<Interceptor, ActiveM
       public void handlePacket(final Packet packet) {
          if (packet.getType() == PacketImpl.FEDERATION_DOWNSTREAM_CONNECT) {
             if (server.getSecurityStore().isSecurityEnabled()) {
-               if (rc.getSubject() == null) {
+               if (rc.getAuditSubject() == null) {
                   ActiveMQServerLogger.LOGGER.federationDownstreamUnauthenticated(rc.getRemoteAddress());
                   rc.destroy();
                   return;
                }
-               if (!server.getFederationManager().authorizeDownstreamDeployment(rc.getSubject())) {
-                  ActiveMQServerLogger.LOGGER.federationDownstreamUnauthorized(rc.getRemoteAddress(), SecurityManagerUtil.getUserFromSubject(rc.getSubject(), UserPrincipal.class));
+               if (!server.getFederationManager().authorizeDownstreamDeployment(rc.getAuditSubject())) {
+                  ActiveMQServerLogger.LOGGER.federationDownstreamUnauthorized(rc.getRemoteAddress(), SecurityManagerUtil.getUserFromSubject(rc.getAuditSubject(), UserPrincipal.class));
                   rc.destroy();
                   return;
                }
