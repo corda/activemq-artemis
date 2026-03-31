@@ -104,8 +104,7 @@ public class FederationDownstreamDirectTest extends ActiveMQTestBase {
          Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224158"));
          Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224159"));
          Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224160"));
-      }
-      finally {
+      } finally {
          AssertionLoggerHandler.stopCapture();
       }
    }
@@ -119,8 +118,7 @@ public class FederationDownstreamDirectTest extends ActiveMQTestBase {
          Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224158"));
          Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224159"));
          Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224160"));
-      }
-      finally {
+      } finally {
          AssertionLoggerHandler.stopCapture();
       }
    }
@@ -134,8 +132,7 @@ public class FederationDownstreamDirectTest extends ActiveMQTestBase {
          Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224158"));
          Assert.assertTrue(AssertionLoggerHandler.findText("AMQ224159"));
          Assert.assertFalse(AssertionLoggerHandler.findText("AMQ224160"));
-      }
-      finally {
+      } finally {
          AssertionLoggerHandler.stopCapture();
       }
    }
@@ -152,8 +149,7 @@ public class FederationDownstreamDirectTest extends ActiveMQTestBase {
 
          // AMQ224161 is logged when the connection closes and the federation is undeployed
          Wait.assertTrue(() -> AssertionLoggerHandler.findText("AMQ224161"));
-      }
-      finally {
+      } finally {
          AssertionLoggerHandler.stopCapture();
       }
    }
