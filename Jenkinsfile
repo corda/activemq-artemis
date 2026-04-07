@@ -61,7 +61,7 @@ pipeline {
 
         stage('Deploy Release to artifactory') {
             when {
-               expression { return isReleaseTag() }
+                expression { return isReleaseTag() }
             }
             steps {
                  sh "mvn deploy -B -s .github/maven-settings.xml -DskipTests -Pjdk8 -Dartifactory.publish.buildInfo=true"
